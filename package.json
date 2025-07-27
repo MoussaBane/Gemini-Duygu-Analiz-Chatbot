@@ -1,0 +1,33 @@
+{
+  "name": "gemini-chatbot",
+  "version": "1.0.0",
+  "description": "Modern ve responsive Gemini AI duygu analizi chatbot'u",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server --port=3000",
+    "dev": "live-server --port=3000 --open",
+    "build": "echo 'Building project...'",
+    "test": "echo 'No tests specified'"
+  },
+  "keywords": [
+    "chatbot",
+    "ai",
+    "sentiment-analysis",
+    "gemini",
+    "javascript",
+    "responsive"
+  ],
+  "author": "Gemini Chatbot Team",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/gemini-chatbot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/gemini-chatbot/issues"
+  },
+  "homepage": "https://github.com/yourusername/gemini-chatbot#readme"
+}
