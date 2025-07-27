@@ -1,6 +1,14 @@
 # 🤖 Gemini Duygu Analiz Chatbot
 
-Modern ve responsive tasarıma sahip gelişmiş duygu analizi chatbot'u. Gemini AI kullanarak metinlerdeki duyguları analiz eder.
+Modern ve responsive tasar### 4. Logo Dosyasını Ekleyin
+Logo dosyanızı `assets/images/` klasörüne `logo.png` adıyla kaydedin. 
+
+**Logo Gereksinimleri:**
+- Format: PNG (transparan arkaplan önerilir)
+- Boyut: 512x512px veya üzeri (kare format)
+- Dosya boyutu: 1MB altında olması önerilir
+
+### 5. Projeyi Çalıştırın gelişmiş duygu analizi chatbot'u. Gemini AI kullanarak metinlerdeki duyguları analiz eder.
 
 ## Özellikler
 
@@ -26,8 +34,16 @@ cd Gemini-Duygu-Analiz-Chatbot
 2. "Get API Key" bölümünden yeni bir API anahtarı oluşturun
 3. API anahtarınızı kopyalayın
 
-### 3. Environment Dosyasını Oluşturun
-`.env.example` dosyasını `.env` olarak kopyalayın ve kendi değerlerinizi girin:
+### 3. API Anahtarını Ekleyin
+
+**Yöntem 1: Kolay Yol (Hızlı Test İçin)**
+`js/chatbot.js` dosyasının 9. satırında API anahtarınızı değiştirin:
+```javascript
+this.API_KEY = "your_api_key_here";
+```
+
+**Yöntem 2: Environment Dosyası (Önerilen)**
+`.env.example` dosyasını `.env` olarak kopyalayın ve düzenleyin:
 
 **Windows:**
 ```bash
@@ -39,13 +55,12 @@ copy .env.example .env
 cp .env.example .env
 ```
 
-### 4. API Anahtarını Ekleyin
 `.env` dosyasında `GEMINI_API_KEY` değerini güncelleyin:
 ```env
 GEMINI_API_KEY=your_actual_api_key_here
 ```
 
-### 5. Logo Dosyasını Ekleyin
+### 4. Logo Dosyasını Ekleyin
 Logo dosyanızı `assets/images/` klasörüne `logo.png` adıyla kaydedin. 
 
 **Logo Gereksinimleri:**

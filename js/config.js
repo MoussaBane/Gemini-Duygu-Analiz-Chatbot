@@ -1,66 +1,21 @@
 /**
  * Environment Configuration Loader
- * Loads environment variables from .env file for client-side use
+ * Simplified version with better fallback support
  */
 
 class EnvironmentConfig {
   constructor() {
     this.config = {};
-    this.loadEnvironmentVariables();
+    this.loadDefaults();
   }
 
   /**
-   * Load environment variables from .env file
-   * Note: In production, consider using a build process to inject these
+   * Load environment variables (simplified for client-side)
    */
   async loadEnvironmentVariables() {
-    try {
-      // For client-side, we'll use a simple approach
-      // In production, these should be injected during build time
-      const response = await fetch('.env');
-      const envText = await response.text();
-      this.parseEnvFile(envText);
-    } catch (error) {
-      console.warn('Environment file not found, using defaults');
-      this.loadDefaults();
-    }
-  }
-
-  /**
-   * Parse .env file content
-   */
-  parseEnvFile(envText) {
-    const lines = envText.split('\n');
-    lines.forEach(line => {
-      line = line.trim();
-      if (line && !line.startsWith('#') && line.includes('=')) {
-        const [key, ...valueParts] = line.split('=');
-        const value = valueParts.join('=').trim();
-        this.config[key.trim()] = this.parseValue(value);
-      }
-    });
-  }
-
-  /**
-   * Parse environment value (handle booleans, numbers, etc.)
-   */
-  parseValue(value) {
-    // Remove quotes if present
-    if ((value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))) {
-      value = value.slice(1, -1);
-    }
-
-    // Parse boolean values
-    if (value.toLowerCase() === 'true') return true;
-    if (value.toLowerCase() === 'false') return false;
-
-    // Parse numeric values
-    if (!isNaN(value) && !isNaN(parseFloat(value))) {
-      return parseFloat(value);
-    }
-
-    return value;
+    // For client-side, we'll use defaults and allow manual override
+    this.loadDefaults();
+    return this.config;
   }
 
   /**
@@ -88,6 +43,13 @@ class EnvironmentConfig {
    */
   get(key, defaultValue = null) {
     return this.config[key] !== undefined ? this.config[key] : defaultValue;
+  }
+
+  /**
+   * Set environment variable value
+   */
+  set(key, value) {
+    this.config[key] = value;
   }
 
   /**

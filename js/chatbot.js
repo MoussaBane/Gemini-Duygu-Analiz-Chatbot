@@ -6,7 +6,8 @@
 class GeminiChatbot {
   constructor() {
     this.config = null;
-    this.API_KEY = null;
+    // API anahtarınızı buraya yapıştırın:
+    this.API_KEY = "AIzaSyDabpNw4_uYpaIeiezjC7zDJZGp2Dgt4qQ"; 
     this.API_URL = null;
     this.isDeepAnalysis = false;
     this.recognition = null;
@@ -16,14 +17,30 @@ class GeminiChatbot {
   }
 
   async initializeConfig() {
-    // Initialize environment configuration
-    this.config = new EnvironmentConfig();
-    await this.config.loadEnvironmentVariables();
-    
-    // Set API configuration
-    const apiConfig = this.config.getApiConfig();
-    this.API_KEY = apiConfig.apiKey;
-    this.API_URL = `${apiConfig.apiUrl}?key=${this.API_KEY}`;
+    try {
+      // Initialize environment configuration
+      this.config = new EnvironmentConfig();
+      
+      // Set API configuration
+      const apiConfig = this.config.getApiConfig();
+      
+      // Use environment API key if available and not default
+      if (apiConfig.apiKey && apiConfig.apiKey !== 'BURAYA_API_ANAHTARINIZI_YAPISTIIRIN') {
+        this.API_KEY = apiConfig.apiKey;
+      }
+      
+      this.API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.API_KEY}`;
+      
+    } catch (error) {
+      console.warn('Environment config failed, using defaults:', error);
+      // Use simple fallback configuration
+      this.config = {
+        get: (key, defaultValue) => defaultValue,
+        isFeatureEnabled: () => true,
+        getAppConfig: () => ({ defaultTheme: 'light', name: 'Gemini Duygu Analiz Chatbot' })
+      };
+      this.API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.API_KEY}`;
+    }
     
     // Initialize app
     this.init();
@@ -37,28 +54,40 @@ class GeminiChatbot {
   }
 
   applyConfiguration() {
-    const appConfig = this.config.getAppConfig();
-    
-    // Set default theme
-    if (appConfig.defaultTheme === 'dark') {
-      document.body.classList.add('dark');
+    try {
+      const appConfig = this.config.getAppConfig ? this.config.getAppConfig() : { defaultTheme: 'light' };
+      
+      // Set default theme
+      if (appConfig.defaultTheme === 'dark') {
+        document.body.classList.add('dark');
+      }
+      
+      // Enable/disable features based on config (only if config is available)
+      if (this.config.isFeatureEnabled) {
+        if (!this.config.isFeatureEnabled('ENABLE_SPEECH_TO_TEXT')) {
+          const voiceBtn = document.getElementById('voiceBtn');
+          if (voiceBtn) voiceBtn.style.display = 'none';
+        }
+        
+        if (!this.config.isFeatureEnabled('ENABLE_DEEP_ANALYSIS')) {
+          const deepAnalysisBtn = document.getElementById('deepAnalysisToggle');
+          if (deepAnalysisBtn) deepAnalysisBtn.style.display = 'none';
+        }
+        
+        if (!this.config.isFeatureEnabled('ENABLE_CHAT_HISTORY')) {
+          const clearHistoryBtn = document.getElementById('clearHistory');
+          if (clearHistoryBtn) clearHistoryBtn.style.display = 'none';
+        }
+      }
+      
+      // Set app title if needed
+      if (appConfig.name) {
+        document.title = appConfig.name;
+      }
+    } catch (error) {
+      console.warn('Configuration application failed:', error);
+      // Continue with default behavior
     }
-    
-    // Enable/disable features based on config
-    if (!this.config.isFeatureEnabled('ENABLE_SPEECH_TO_TEXT')) {
-      document.getElementById('voiceBtn').style.display = 'none';
-    }
-    
-    if (!this.config.isFeatureEnabled('ENABLE_DEEP_ANALYSIS')) {
-      document.getElementById('deepAnalysisToggle').style.display = 'none';
-    }
-    
-    if (!this.config.isFeatureEnabled('ENABLE_CHAT_HISTORY')) {
-      document.getElementById('clearHistory').style.display = 'none';
-    }
-    
-    // Set app title if needed
-    document.title = appConfig.name;
   }
 
   // Event Listeners
@@ -105,25 +134,32 @@ class GeminiChatbot {
 
   // Logging utility
   log(message, type = 'info') {
-    if (this.config && this.config.get('CONSOLE_LOGGING', true)) {
-      const timestamp = new Date().toISOString();
-      const logMessage = `[${timestamp}] [${type.toUpperCase()}] ${message}`;
+    try {
+      const shouldLog = this.config && this.config.get ? this.config.get('CONSOLE_LOGGING', true) : true;
       
-      switch (type) {
-        case 'error':
-          console.error(logMessage);
-          break;
-        case 'warn':
-          console.warn(logMessage);
-          break;
-        case 'debug':
-          if (this.config.get('DEBUG_MODE', false)) {
+      if (shouldLog) {
+        const timestamp = new Date().toISOString();
+        const logMessage = `[${timestamp}] [${type.toUpperCase()}] ${message}`;
+        
+        switch (type) {
+          case 'error':
+            console.error(logMessage);
+            break;
+          case 'warn':
+            console.warn(logMessage);
+            break;
+          case 'debug':
+            const debugMode = this.config && this.config.get ? this.config.get('DEBUG_MODE', false) : false;
+            if (debugMode) {
+              console.log(logMessage);
+            }
+            break;
+          default:
             console.log(logMessage);
-          }
-          break;
-        default:
-          console.log(logMessage);
+        }
       }
+    } catch (error) {
+      console.log(`[FALLBACK] ${message}`);
     }
   }
 
