@@ -18,6 +18,7 @@
 - [x] Safari uyumluluğu (webkit prefix)
 - [x] Click-to-zoom logo özelliği
 - [x] Fallback emoji sistemi
+- [x] GitHub repository'ye initial push
 - [ ] API anahtarı güvenliği iyileştirmesi
 - [ ] Offline mode desteği
 - [ ] Export/Import chat history
