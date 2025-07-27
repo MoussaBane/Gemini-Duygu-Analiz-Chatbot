@@ -85,10 +85,27 @@ class GeminiChatbot {
       if (modal) modal.style.display = 'none';
       this.hideApiNotice();
       
-      // Initialize if not already done
+      // Initialize if not already done, with retry protection
       if (!this.config) {
-        this.initializeConfig();
+        // Add a retry counter to the window object to persist across calls
+        window._geminiConfigRetryCount = (window._geminiConfigRetryCount || 0) + 1;
+        if (window._geminiConfigRetryCount <= 3) {
+          this.log(
+            `initializeConfig retry attempt #${window._geminiConfigRetryCount}`,
+            "warn"
+          );
+          this.initializeConfig();
+        } else {
+          this.log(
+            "initializeConfig failed after multiple attempts. Please reload the page or check your configuration.",
+            "error"
+          );
+          alert(
+            "Yapılandırma yüklenemedi. Lütfen sayfayı yenileyin veya API anahtarınızı kontrol edin."
+          );
+        }
       } else {
+        window._geminiConfigRetryCount = 0;
         this.init();
       }
       
@@ -405,8 +422,7 @@ ${this.isDeepAnalysis ? `
 DERIN ANALİZ:
 - Empati Seviyesi: [Düşük/Orta/Yüksek]
 - Psikolojik İpuçları: [Kısa analiz]
-- Öneriler: [Varsa öneriler]
-- Edebi Referans: [Varsa benzer eser/şarkı]` : ''}
+- Öneriler: [Varsa öneriler]` : ''}
 
 Analiz edilecek metin: "${userMessage}"`;
 
