@@ -5,12 +5,27 @@
 
 class GeminiChatbot {
   constructor() {
-    this.API_KEY = "AIzaSyDabpNw4_uYpaIeiezjC7zDJZGp2Dgt4qQ";
-    this.API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${this.API_KEY}`;
+    this.config = null;
+    this.API_KEY = null;
+    this.API_URL = null;
     this.isDeepAnalysis = false;
     this.recognition = null;
     this.isRecording = false;
     
+    this.initializeConfig();
+  }
+
+  async initializeConfig() {
+    // Initialize environment configuration
+    this.config = new EnvironmentConfig();
+    await this.config.loadEnvironmentVariables();
+    
+    // Set API configuration
+    const apiConfig = this.config.getApiConfig();
+    this.API_KEY = apiConfig.apiKey;
+    this.API_URL = `${apiConfig.apiUrl}?key=${this.API_KEY}`;
+    
+    // Initialize app
     this.init();
   }
 
@@ -18,6 +33,32 @@ class GeminiChatbot {
     this.loadHistory();
     this.initializeSpeechRecognition();
     this.bindEvents();
+    this.applyConfiguration();
+  }
+
+  applyConfiguration() {
+    const appConfig = this.config.getAppConfig();
+    
+    // Set default theme
+    if (appConfig.defaultTheme === 'dark') {
+      document.body.classList.add('dark');
+    }
+    
+    // Enable/disable features based on config
+    if (!this.config.isFeatureEnabled('ENABLE_SPEECH_TO_TEXT')) {
+      document.getElementById('voiceBtn').style.display = 'none';
+    }
+    
+    if (!this.config.isFeatureEnabled('ENABLE_DEEP_ANALYSIS')) {
+      document.getElementById('deepAnalysisToggle').style.display = 'none';
+    }
+    
+    if (!this.config.isFeatureEnabled('ENABLE_CHAT_HISTORY')) {
+      document.getElementById('clearHistory').style.display = 'none';
+    }
+    
+    // Set app title if needed
+    document.title = appConfig.name;
   }
 
   // Event Listeners
@@ -60,6 +101,30 @@ class GeminiChatbot {
         });
       });
     }, 100);
+  }
+
+  // Logging utility
+  log(message, type = 'info') {
+    if (this.config && this.config.get('CONSOLE_LOGGING', true)) {
+      const timestamp = new Date().toISOString();
+      const logMessage = `[${timestamp}] [${type.toUpperCase()}] ${message}`;
+      
+      switch (type) {
+        case 'error':
+          console.error(logMessage);
+          break;
+        case 'warn':
+          console.warn(logMessage);
+          break;
+        case 'debug':
+          if (this.config.get('DEBUG_MODE', false)) {
+            console.log(logMessage);
+          }
+          break;
+        default:
+          console.log(logMessage);
+      }
+    }
   }
 
   // Speech Recognition
@@ -175,7 +240,7 @@ class GeminiChatbot {
       this.saveToLocalStorage();
       
     } catch (error) {
-      console.error('API Hatası:', error);
+      this.log(`API Hatası: ${error.message}`, "error");
       this.removeLastBotMessage();
       
       let errorMessage = '❌ Bağlantı hatası. ';

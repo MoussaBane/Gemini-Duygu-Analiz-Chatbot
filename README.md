@@ -26,7 +26,26 @@ cd Gemini-Duygu-Analiz-Chatbot
 2. "Get API Key" bölümünden yeni bir API anahtarı oluşturun
 3. API anahtarınızı kopyalayın
 
-### 3. Logo Dosyasını Ekleyin
+### 3. Environment Dosyasını Oluşturun
+`.env.example` dosyasını `.env` olarak kopyalayın ve kendi değerlerinizi girin:
+
+**Windows:**
+```bash
+copy .env.example .env
+```
+
+**Mac/Linux:**
+```bash
+cp .env.example .env
+```
+
+### 4. API Anahtarını Ekleyin
+`.env` dosyasında `GEMINI_API_KEY` değerini güncelleyin:
+```env
+GEMINI_API_KEY=your_actual_api_key_here
+```
+
+### 5. Logo Dosyasını Ekleyin
 Logo dosyanızı `assets/images/` klasörüne `logo.png` adıyla kaydedin. 
 
 **Logo Gereksinimleri:**
@@ -34,15 +53,15 @@ Logo dosyanızı `assets/images/` klasörüne `logo.png` adıyla kaydedin.
 - Boyut: 512x512px veya üzeri (kare format)
 - Dosya boyutu: 1MB altında olması önerilir
 
-### 4. API Anahtarını Ekleyin
-`js/chatbot.js` dosyasında şu satırı bulun:
-```javascript
-this.API_KEY = "BURAYA_API_ANAHTARINIZI_YAPISTIIRIN";
-```
+### 5. Logo Dosyasını Ekleyin
+Logo dosyanızı `assets/images/` klasörüne `logo.png` adıyla kaydedin. 
 
-Kendi API anahtarınızla değiştirin.
+**Logo Gereksinimleri:**
+- Format: PNG (transparan arkaplan önerilir)
+- Boyut: 512x512px veya üzeri (kare format)
+- Dosya boyutu: 1MB altında olması önerilir
 
-### 4. Projeyi Çalıştırın
+### 6. Projeyi Çalıştırın
 - **Live Server ile** (Önerilen): VS Code Live Server extension'ı kullanın
 - **Python ile**: `python -m http.server 8000`
 - **Node.js ile**: `npx serve .`
@@ -50,14 +69,18 @@ Kendi API anahtarınızla değiştirin.
 ## 📁 Proje Yapısı
 
 ```
-GeminiChatBot/
+Gemini-Duygu-Analiz-Chatbot/
 ├── index.html          # Ana HTML dosyası
+├── .env                # Environment variables (local)
+├── .env.example        # Environment template
+├── .gitignore          # Git ignore rules
 ├── assets/
 │   └── images/
 │       └── logo.png    # Proje logosu
 ├── css/
 │   └── styles.css      # Modern ve responsive CSS
 ├── js/
+│   ├── config.js       # Environment configuration
 │   └── chatbot.js      # JavaScript modülleri
 └── README.md          # Bu dosya
 ```
@@ -165,20 +188,28 @@ GeminiChatBot/
 
 ## 🔒 Güvenlik
 
-- API anahtarı client-side (Üretim için sunucu-side önerilir)
-- HTTPS bağlantı zorunluluğu
-- Input sanitization
-- XSS koruması
+- **Environment Variables**: API anahtarı .env dosyasında güvenli şekilde saklanır
+- **Git Ignore**: .env dosyası Git'e commit edilmez
+- **Client-side Limitation**: Üretim için sunucu-side API proxy önerilir
+- **HTTPS Zorunluluğu**: Speech API için HTTPS gereklidir
+- **Input Sanitization**: Kullanıcı girişleri temizlenir
+- **XSS Koruması**: İçerik güvenli şekilde render edilir
 
 ## 🐛 Sorun Giderme
 
 ### API Hatası 401
-- API anahtarınızı kontrol edin
+- `.env` dosyasındaki `GEMINI_API_KEY` değerini kontrol edin
 - Google AI Studio'da anahtarın aktif olduğunu doğrulayın
+- API anahtarının başında/sonunda boşluk olmadığını kontrol edin
 
 ### API Hatası 404
 - Internet bağlantınızı kontrol edin
-- API endpoint'inin doğru olduğunu kontrol edin
+- `.env` dosyasındaki `GEMINI_API_URL` değerini kontrol edin
+
+### Environment Dosyası Bulunamıyor
+- `.env.example` dosyasını `.env` olarak kopyaladığınızdan emin olun
+- `.env` dosyasının proje kök dizininde olduğunu kontrol edin
+- Tarayıcı console'da environment load hatalarını kontrol edin
 
 ### Sesli Yazma Çalışmıyor
 - Tarayıcınızın mikrofon iznini kontrol edin

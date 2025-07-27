@@ -6,7 +6,8 @@
 - **Owner**: MoussaBane
 
 ## Geliştirme Notları
-- API anahtarı güvenliği için production'da environment variables kullanın
+- Environment variables ile güvenli yapılandırma sistemi eklendi
+- Modüler config.js ile yapılandırma yönetimi
 - Service Worker eklenebilir (PWA desteği için)
 - TypeScript'e dönüştürülebilir
 
@@ -19,7 +20,9 @@
 - [x] Click-to-zoom logo özelliği
 - [x] Fallback emoji sistemi
 - [x] GitHub repository'ye initial push
-- [ ] API anahtarı güvenliği iyileştirmesi
+- [x] Environment variables (.env) sistemi
+- [x] Yapılandırılabilir özellik toggles
+- [x] Gelişmiş logging sistemi
 - [ ] Offline mode desteği
 - [ ] Export/Import chat history
 - [ ] Multiple language support
@@ -28,6 +31,7 @@
 - [ ] Performance monitoring
 - [ ] Error tracking
 - [ ] Unit tests
+- [ ] Server-side API proxy (production)
 
 ## API Limitleri
 - Gemini API: 60 requests/minute (free tier)
