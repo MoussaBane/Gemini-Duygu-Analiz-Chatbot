@@ -20,9 +20,22 @@ class GeminiChatbot {
       // Initialize environment configuration
       this.config = new EnvironmentConfig();
       
+      // Check localStorage first for saved API key
+      const savedApiKey = localStorage.getItem('gemini_api_key');
+      if (savedApiKey) {
+        this.API_KEY = savedApiKey;
+      }
+      
       // Check if API key is available
       if (!this.API_KEY || this.API_KEY === 'BURAYA_API_ANAHTARINIZI_YAPISTIIRIN') {
-        this.showApiKeyModal();
+        // Wait for DOM to be ready before showing modal
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => this.showApiKeyModal(), 500);
+          });
+        } else {
+          setTimeout(() => this.showApiKeyModal(), 500);
+        }
         return;
       }
       
@@ -36,8 +49,21 @@ class GeminiChatbot {
         getAppConfig: () => ({ defaultTheme: 'light', name: 'Gemini Duygu Analiz Chatbot' })
       };
       
-      if (this.API_KEY) {
+      // Check localStorage for API key even in fallback mode
+      const savedApiKey = localStorage.getItem('gemini_api_key');
+      if (savedApiKey) {
+        this.API_KEY = savedApiKey;
         this.API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.API_KEY}`;
+      } else if (!this.API_KEY) {
+        // Show modal if no API key found
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => this.showApiKeyModal(), 500);
+          });
+        } else {
+          setTimeout(() => this.showApiKeyModal(), 500);
+        }
+        return;
       }
     }
     
@@ -55,17 +81,23 @@ class GeminiChatbot {
 
   // Show API key modal
   showApiKeyModal() {
+    console.log('🔑 Tentative d\'ouverture du modal API'); // Debug log
     const modal = document.getElementById('apiKeyModal');
     
     if (modal) {
+      console.log('📱 Modal trouvé, affichage en cours...');
       modal.style.display = 'flex';
       modal.classList.add('show');
       
       // Focus on input
       const input = document.getElementById('apiKeyInput');
       if (input) {
+        console.log('⌨️ Focus sur l\'input');
         setTimeout(() => input.focus(), 100);
       }
+    } else {
+      console.error('❌ Modal API non trouvé dans le DOM!');
+      alert('Erreur: Modal API non trouvé. Veuillez recharger la page.');
     }
   }
 
