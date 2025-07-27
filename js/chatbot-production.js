@@ -55,12 +55,25 @@ class GeminiChatbot {
 
   // Show API key modal
   showApiKeyModal() {
+    console.log('Showing API key modal'); // Debug log
     const modal = document.getElementById('apiKeyModal');
     const notice = document.getElementById('apiNotice');
     
     if (modal) {
       modal.style.display = 'flex';
+      modal.classList.add('show');
+      
+      // Focus on input after a short delay
+      const input = document.getElementById('apiKeyInput');
+      if (input) {
+        setTimeout(() => {
+          input.focus();
+        }, 100);
+      }
+    } else {
+      console.error('API Key modal not found!');
     }
+    
     if (notice) {
       notice.classList.add('show');
     }
@@ -190,24 +203,101 @@ class GeminiChatbot {
     const saveApiKeyBtn = document.getElementById('saveApiKey');
     const cancelApiKeyBtn = document.getElementById('cancelApiKey');
     const apiKeyInput = document.getElementById('apiKeyInput');
+    const modal = document.getElementById('apiKeyModal');
     
     if (saveApiKeyBtn) {
-      saveApiKeyBtn.addEventListener('click', () => {
-        const apiKey = apiKeyInput ? apiKeyInput.value : '';
-        if (this.saveApiKey(apiKey)) {
+      saveApiKeyBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('Save button clicked'); // Debug log
+        const apiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+        console.log('API Key entered:', apiKey ? 'Yes' : 'No'); // Debug log
+        
+        if (!apiKey) {
+          alert('Lütfen API anahtarınızı girin.');
+          if (apiKeyInput) apiKeyInput.focus();
+          return;
+        }
+        
+        if (apiKey.length < 30) {
+          alert('API anahtarı çok kısa görünüyor. Lütfen doğru API anahtarını girin.');
+          if (apiKeyInput) apiKeyInput.focus();
+          return;
+        }
+        
+        // Save API key
+        try {
+          localStorage.setItem('gemini_api_key', apiKey);
+          this.API_KEY = apiKey;
+          this.API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.API_KEY}`;
+          
+          // Hide modal
+          if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+          }
+          
+          // Clear input
           if (apiKeyInput) apiKeyInput.value = '';
-        } else {
-          alert('Lütfen geçerli bir API anahtarı girin.');
+          
+          // Hide notice
+          this.hideApiNotice();
+          
+          alert('API anahtarı başarıyla kaydedildi! Artık chatbot\'u kullanabilirsiniz.');
+          
+          // Initialize app
+          this.init();
+          
+        } catch (error) {
+          console.error('Error saving API key:', error);
+          alert('API anahtarı kaydedilemedi. Lütfen tekrar deneyin.');
         }
       });
     }
     
     if (cancelApiKeyBtn) {
-      cancelApiKeyBtn.addEventListener('click', () => {
-        const modal = document.getElementById('apiKeyModal');
-        if (modal) modal.style.display = 'none';
+      cancelApiKeyBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('Cancel button clicked'); // Debug log
+        
+        if (modal) {
+          modal.style.display = 'none';
+          modal.classList.remove('show');
+        }
+        if (apiKeyInput) {
+          apiKeyInput.value = '';
+        }
       });
     }
+
+    // Modal outside click to close
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+          modal.classList.remove('show');
+          if (apiKeyInput) apiKeyInput.value = '';
+        }
+      });
+    }
+
+    // Enter key in API input
+    if (apiKeyInput) {
+      apiKeyInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (saveApiKeyBtn) saveApiKeyBtn.click();
+        }
+      });
+    }
+
+    // Escape key to close modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && modal.style.display !== 'none') {
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+        if (apiKeyInput) apiKeyInput.value = '';
+      }
+    });
 
     // Test sentence buttons - will be bound after DOM content loaded
     this.bindTestButtons();

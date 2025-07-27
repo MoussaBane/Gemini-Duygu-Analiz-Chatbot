@@ -696,12 +696,18 @@ body.dark .test-section {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: none;
   justify-content: center;
   align-items: center;
-  z-index: 2000;
+  z-index: 10000;
   animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal.show {
+  display: flex;
 }
 
 @keyframes modalFadeIn {
