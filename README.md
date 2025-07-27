@@ -107,6 +107,10 @@ Gemini-Duygu-Analiz-Chatbot/
 - Smooth animasyonlar
 - Gradient renkler
 - Box-shadow derinlik efektleri
+  
+<img width="1058" height="869" alt="Ekran görüntüsü 2025-07-28 005253" src="https://github.com/user-attachments/assets/8be40109-dbbb-4fe2-a7aa-d4d39aa92b9a" />
+<img width="1065" height="873" alt="Ekran görüntüsü 2025-07-28 005346" src="https://github.com/user-attachments/assets/a7197d1c-ddb9-4b64-ba78-0638d7f0bcb4" />
+
 
 ### Logo Animasyonları
 - **Float Animasyonu**: Logo sürekli yumuşak hareket eder
