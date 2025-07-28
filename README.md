@@ -9,15 +9,15 @@ Modern ve responsive tasarıma sahip gelişmiş duygu analizi chatbot'u. Gemini 
 
 ## ✨ Özellikler
 
-- 🎯 **Duygu Analizi**: Emoji, duygu adı ve güven yüzdesi ile detaylı analiz
-- 🧠 **Derin Analiz Modu**: Empati seviyesi, psikolojik ipuçları ve edebi referanslar
-- 💾 **Geçmiş Kaydetme**: localStorage ile otomatik sohbet geçmişi kaydetme
-- 🎤 **Sesle Yazma**: Speech-to-Text teknolojisi ile sesli mesaj girişi
-- 🌗 **Tema Desteği**: Header'da entegre edilmiş minimal tema değiştirici
-- 📱 **Responsive Tasarım**: Tüm cihazlarda mükemmel görünüm
-- 🧪 **Test Cümleleri**: Farklı duygu durumları için hazır test cümleleri
-- 🖼️ **Animasyonlu Logo**: Tıklanabilir zoom efekti ve sürekli animasyon
-- 🔒 **Güvenli API Yönetimi**: LocalStorage ile güvenli API anahtarı saklama
+- **Duygu Analizi**: Emoji, duygu adı ve güven yüzdesi ile detaylı analiz
+- **Derin Analiz Modu**: Empati seviyesi, psikolojik ipuçları ve edebi referanslar
+- **Geçmiş Kaydetme**: localStorage ile otomatik sohbet geçmişi kaydetme
+- **Sesle Yazma**: Speech-to-Text teknolojisi ile sesli mesaj girişi
+- **Tema Desteği**: Header'da entegre edilmiş minimal tema değiştirici
+- **Responsive Tasarım**: Tüm cihazlarda mükemmel görünüm
+- **Test Cümleleri**: Farklı duygu durumları için hazır test cümleleri
+- **Animasyonlu Logo**: Tıklanabilir zoom efekti ve sürekli animasyon
+- **Güvenli API Yönetimi**: LocalStorage ile güvenli API anahtarı saklama
 
 ## 🚀 Hızlı Başlangıç
 
