@@ -4,14 +4,14 @@ Modern ve responsive tasarıma sahip gelişmiş duygu analizi chatbot'u. Gemini 
 
 ## ✨ Özellikler
 
-- **🎯 Duygu Analizi**: Detaylı duygu tespiti ve yoğunluk analizi
-- **🧠 Derin Analiz Modu**: Psikolojik durum, motivasyon ve öneriler
-- **💾 Geçmiş Kaydetme**: localStorage ile otomatik sohbet geçmişi
-- **🎤 Sesle Yazma**: Speech-to-Text teknolojisi ile sesli mesaj
-- **🌗 Tema Desteği**: Açık/Koyu tema değiştirici
-- **📱 Responsive Tasarım**: Tüm cihazlarda mükemmel görünüm
-- **🧪 Test Cümleleri**: Farklı duygu durumları için hazır örnekler
-- **✨ Animasyonlu Logo**: Tıklanabilir efektler ve sürekli animasyon
+- **Duygu Analizi**: Detaylı duygu tespiti ve yoğunluk analizi
+- **Derin Analiz Modu**: Psikolojik durum, motivasyon ve öneriler
+- **Geçmiş Kaydetme**: localStorage ile otomatik sohbet geçmişi
+- **Sesle Yazma**: Speech-to-Text teknolojisi ile sesli mesaj
+- **Tema Desteği**: Açık/Koyu tema değiştirici
+- **Responsive Tasarım**: Tüm cihazlarda mükemmel görünüm
+- **Test Cümleleri**: Farklı duygu durumları için hazır örnekler
+- **Animasyonlu Logo**: Tıklanabilir efektler ve sürekli animasyon
 
 ## 🚀 Kurulum
 
@@ -28,7 +28,7 @@ cd Gemini-Duygu-Analiz-Chatbot
 
 ### 3. API Anahtarını Yapılandırın
 
-**📁 Config Dosyası ile (Önerilen)**
+**Config Dosyası ile (Önerilen)**
 
 1. `js/config.example.js` dosyasını `js/config.js` olarak kopyalayın:
 
@@ -46,7 +46,7 @@ cp js/config.example.js js/config.js
 GEMINI_API_KEY: "your_actual_api_key_here"
 ```
 
-**⚠️ Önemli**: `config.js` dosyası Git'e commit edilmez (güvenlik için).
+**Önemli**: `config.js` dosyası Git'e commit edilmez (güvenlik için).
 
 ### 4. Logo Dosyasını Ekleyin (İsteğe Bağlı)
 Logo dosyanızı `assets/images/` klasörüne `logo.png` adıyla kaydedin.
@@ -112,12 +112,12 @@ Gemini-Duygu-Analiz-Chatbot/
 3. AI analizini görüntüleyin
 
 ### Derin Analiz
-1. "🧠 Derin Analiz" butonunu aktifleştirin
+1. "Derin Analiz" butonunu aktifleştirin
 2. Metninizi gönderin
 3. Detaylı psikolojik analizi inceleyin
 
 ### Sesle Yazma
-1. 🎤 mikrofon butonuna tıklayın
+1. mikrofon butonuna tıklayın
 2. Konuşmaya başlayın (Türkçe)
 3. Metin otomatik olarak yazılacak
 
@@ -213,21 +213,21 @@ Gemini-Duygu-Analiz-Chatbot/
 
 ### Yaygın Sorunlar
 
-**🔇 Sesli Yazma Çalışmıyor**
+**Sesli Yazma Çalışmıyor**
 - Mikrofon iznini kontrol edin
 - HTTPS bağlantı kullanın
 - Tarayıcı uyumluluğunu kontrol edin
 
-**🎭 Test Butonları Çalışmıyor**
+**Test Butonları Çalışmıyor**
 - Sayfayı yenileyin
 - JavaScript console'da hata kontrol edin
 - Event binding'i bekleyin
 
-**🖼️ Logo Gösterilmiyor**
+**Logo Gösterilmiyor**
 - `assets/images/logo.png` dosyasını kontrol edin
 - Fallback emoji otomatik gösterilir
 
-**🌗 Tema Değişmiyor**
+**Tema Değişmiyor**
 - localStorage desteğini kontrol edin
 - Tarayıcı cache'ini temizleyin
 
@@ -277,12 +277,12 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 ## 🗺️ Roadmap
 
 ### Gelecek Sürümler
-- [ ] 🌍 Çoklu dil desteği
-- [ ] 📊 Grafik görselleştirme
-- [ ] 💬 Chat export özelliği
-- [ ] 🔌 Plugin sistemi
-- [ ] 📱 PWA desteği
-- [ ] 🎨 Özelleştirilebilir temalar
+- [ ] Çoklu dil desteği
+- [ ] Grafik görselleştirme
+- [ ] Chat export özelliği
+- [ ] Plugin sistemi
+- [ ] PWA desteği
+- [ ] Özelleştirilebilir temalar
 
 ### Bilinen Limitasyonlar
 - Client-side API kullanımı (güvenlik)
