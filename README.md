@@ -282,4 +282,4 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 Sorularınız için issue açabilir veya benimle iletişime geçebilirsiniz.
 
 ---
-Made with ❤️ by Moussa Bane
+Made with ❤️ by [Moussa BANE(https://github.com/MoussaBane)]
