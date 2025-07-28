@@ -1,6 +1,13 @@
 /**
- * Environment Configuration Loader
- * Simplified version with better fallback support
+ * Environment Configuration Loader - EXAMPLE FILE
+ * =================================================
+ * 
+ * INSTRUCTIONS:
+ * 1. Copy this file to 'config.js'
+ * 2. Replace 'YOUR_API_KEY_HERE' with your actual Gemini API key
+ * 3. Get your API key from: https://aistudio.google.com/
+ * 
+ * WARNING: Never commit config.js to version control!
  */
 
 class EnvironmentConfig {
@@ -23,17 +30,29 @@ class EnvironmentConfig {
    */
   loadDefaults() {
     this.config = {
-      GEMINI_API_KEY: "AIzaSyASnKl10I8jyI5g__1AXUwO8-eZCryGv-w",
-      GEMINI_API_URL:
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+      // ⚠️ REPLACE WITH YOUR ACTUAL API KEY ⚠️
+      GEMINI_API_KEY: "YOUR_API_KEY_HERE",
+      
+      // API Configuration
+      GEMINI_API_URL: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+      
+      // Application Settings
       APP_NAME: "Gemini Duygu Analiz Chatbot",
       APP_VERSION: "1.0.0",
+      
+      // Feature Toggles
       ENABLE_SPEECH_TO_TEXT: true,
       ENABLE_DEEP_ANALYSIS: true,
       ENABLE_CHAT_HISTORY: true,
+      
+      // Theme Settings
       DEFAULT_THEME: "light",
+      
+      // Rate Limiting
       API_RATE_LIMIT: 60,
       API_RATE_WINDOW: 60000,
+      
+      // Debug Settings
       DEBUG_MODE: false,
       CONSOLE_LOGGING: true,
     };

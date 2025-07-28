@@ -6,12 +6,13 @@
 class GeminiChatbot {
   constructor() {
     this.config = null;
-    this.API_KEY = localStorage.getItem('gemini_api_key') || null;
+    this.API_KEY = null;
     this.API_URL = null;
     this.isDeepAnalysis = false;
     this.recognition = null;
     this.isRecording = false;
-    
+    this.chatHistory = [];
+
     this.initializeConfig();
   }
 
@@ -19,28 +20,30 @@ class GeminiChatbot {
     try {
       // Initialize environment configuration
       this.config = new EnvironmentConfig();
-      
-      // Check if API key is available
-      if (!this.API_KEY || this.API_KEY === 'BURAYA_API_ANAHTARINIZI_YAPISTIIRIN') {
-        this.showApiKeyModal();
+
+      // Get API key from config
+      this.API_KEY = this.config.get("GEMINI_API_KEY");
+
+      // Check if API key is valid
+      if (!this.API_KEY || this.API_KEY === "YOUR_API_KEY_HERE") {
+        this.showApiNotice();
+        console.warn("Please set your API key in js/config.js");
         return;
       }
-      
+
       this.API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.API_KEY}`;
-      
     } catch (error) {
-      console.warn('Environment config failed, using defaults:', error);
+      console.warn("Environment config failed, using defaults:", error);
       this.config = {
         get: (key, defaultValue) => defaultValue,
         isFeatureEnabled: () => true,
-        getAppConfig: () => ({ defaultTheme: 'light', name: 'Gemini Duygu Analiz Chatbot' })
+        getAppConfig: () => ({
+          defaultTheme: "light",
+          name: "Gemini Duygu Analiz Chatbot",
+        }),
       };
-      
-      if (this.API_KEY) {
-        this.API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.API_KEY}`;
-      }
     }
-    
+
     // Initialize app
     this.init();
   }
@@ -50,254 +53,110 @@ class GeminiChatbot {
     this.initializeSpeechRecognition();
     this.bindEvents();
     this.applyConfiguration();
-    this.hideApiNotice();
+    if (this.API_KEY && this.API_KEY !== "YOUR_API_KEY_HERE") {
+      this.hideApiNotice();
+    }
   }
 
-  // Show API key modal
-  showApiKeyModal() {
-    console.log('Showing API key modal'); // Debug log
-    const modal = document.getElementById('apiKeyModal');
-    const notice = document.getElementById('apiNotice');
-    
-    if (modal) {
-      modal.style.display = 'flex';
-      modal.classList.add('show');
-      
-      // Focus on input after a short delay
-      const input = document.getElementById('apiKeyInput');
-      if (input) {
-        setTimeout(() => {
-          input.focus();
-        }, 100);
-      }
-    } else {
-      console.error('API Key modal not found!');
-    }
-    
+  showApiNotice() {
+    const notice = document.getElementById("apiNotice");
     if (notice) {
-      notice.classList.add('show');
+      notice.classList.add("show");
     }
   }
 
   hideApiNotice() {
-    const notice = document.getElementById('apiNotice');
+    const notice = document.getElementById("apiNotice");
     if (notice) {
-      notice.classList.remove('show');
+      notice.classList.remove("show");
     }
-  }
-
-  // Save API key
-  saveApiKey(apiKey) {
-    if (apiKey && apiKey.trim()) {
-      this.API_KEY = apiKey.trim();
-      localStorage.setItem('gemini_api_key', this.API_KEY);
-      this.API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.API_KEY}`;
-      
-      // Hide modal and notice
-      const modal = document.getElementById('apiKeyModal');
-      if (modal) modal.style.display = 'none';
-      this.hideApiNotice();
-      
-      // Initialize if not already done
-      if (!this.config) {
-        this.initializeConfig();
-      } else {
-        this.init();
-      }
-      
-      this.log('API key saved successfully', 'info');
-      return true;
-    }
-    return false;
   }
 
   applyConfiguration() {
     try {
-      const appConfig = this.config.getAppConfig ? this.config.getAppConfig() : { defaultTheme: 'light' };
-      
+      const appConfig = this.config.getAppConfig
+        ? this.config.getAppConfig()
+        : { defaultTheme: "light" };
+
       // Set default theme
-      if (appConfig.defaultTheme === 'dark') {
-        document.body.classList.add('dark');
+      if (appConfig.defaultTheme === "dark") {
+        document.body.classList.add("dark");
       }
-      
-      // Enable/disable features based on config (only if config is available)
+
+      // Enable/disable features based on config
       if (this.config.isFeatureEnabled) {
-        if (!this.config.isFeatureEnabled('ENABLE_SPEECH_TO_TEXT')) {
-          const voiceBtn = document.getElementById('voiceBtn');
-          if (voiceBtn) voiceBtn.style.display = 'none';
+        if (!this.config.isFeatureEnabled("ENABLE_SPEECH_TO_TEXT")) {
+          const voiceBtn = document.getElementById("voiceBtn");
+          if (voiceBtn) voiceBtn.style.display = "none";
         }
-        
-        if (!this.config.isFeatureEnabled('ENABLE_DEEP_ANALYSIS')) {
-          const deepAnalysisBtn = document.getElementById('deepAnalysisToggle');
-          if (deepAnalysisBtn) deepAnalysisBtn.style.display = 'none';
+
+        if (!this.config.isFeatureEnabled("ENABLE_DEEP_ANALYSIS")) {
+          const deepAnalysisBtn = document.getElementById("deepAnalysisToggle");
+          if (deepAnalysisBtn) deepAnalysisBtn.style.display = "none";
         }
-        
-        if (!this.config.isFeatureEnabled('ENABLE_CHAT_HISTORY')) {
-          const clearHistoryBtn = document.getElementById('clearHistory');
-          if (clearHistoryBtn) clearHistoryBtn.style.display = 'none';
+
+        if (!this.config.isFeatureEnabled("ENABLE_CHAT_HISTORY")) {
+          const clearHistoryBtn = document.getElementById("clearHistory");
+          if (clearHistoryBtn) clearHistoryBtn.style.display = "none";
         }
       }
-      
+
       // Set app title if needed
       if (appConfig.name) {
         document.title = appConfig.name;
       }
     } catch (error) {
-      console.warn('Configuration application failed:', error);
+      console.warn("Configuration application failed:", error);
     }
   }
 
   // Event Listeners
   bindEvents() {
     // Theme toggle
-    const themeBtn = document.getElementById('toggleTheme');
+    const themeBtn = document.getElementById("toggleTheme");
     if (themeBtn) {
-      themeBtn.addEventListener('click', () => this.toggleTheme());
+      themeBtn.addEventListener("click", () => this.toggleTheme());
     }
-    
+
     // Deep analysis toggle
-    const deepAnalysisBtn = document.getElementById('deepAnalysisToggle');
+    const deepAnalysisBtn = document.getElementById("deepAnalysisToggle");
     if (deepAnalysisBtn) {
-      deepAnalysisBtn.addEventListener('click', () => this.toggleDeepAnalysis());
+      deepAnalysisBtn.addEventListener("click", () =>
+        this.toggleDeepAnalysis()
+      );
     }
-    
+
     // Clear history
-    const clearHistoryBtn = document.getElementById('clearHistory');
+    const clearHistoryBtn = document.getElementById("clearHistory");
     if (clearHistoryBtn) {
-      clearHistoryBtn.addEventListener('click', () => this.clearHistory());
+      clearHistoryBtn.addEventListener("click", () => this.clearHistory());
     }
-    
-    // API key button
-    const apiKeyBtn = document.getElementById('apiKeyBtn');
-    if (apiKeyBtn) {
-      apiKeyBtn.addEventListener('click', () => this.showApiKeyModal());
-    }
-    
+
     // Voice toggle
-    const voiceBtn = document.getElementById('voiceBtn');
+    const voiceBtn = document.getElementById("voiceBtn");
     if (voiceBtn) {
-      voiceBtn.addEventListener('click', () => this.toggleVoice());
+      voiceBtn.addEventListener("click", () => this.toggleVoice());
     }
-    
+
     // Send message
-    const sendBtn = document.getElementById('sendBtn');
+    const sendBtn = document.getElementById("sendBtn");
     if (sendBtn) {
-      sendBtn.addEventListener('click', () => this.sendMessage());
+      sendBtn.addEventListener("click", () => this.sendMessage());
     }
-    
+
     // Enter key handler
-    const userInput = document.getElementById('userInput');
+    const userInput = document.getElementById("userInput");
     if (userInput) {
-      userInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') this.sendMessage();
+      userInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") this.sendMessage();
       });
     }
 
     // Logo click to zoom
-    const logoContainer = document.querySelector('.logo-container');
+    const logoContainer = document.querySelector(".logo-container");
     if (logoContainer) {
-      logoContainer.addEventListener('click', () => this.toggleLogoZoom());
+      logoContainer.addEventListener("click", () => this.toggleLogoZoom());
     }
-
-    // API Key Modal events
-    const saveApiKeyBtn = document.getElementById('saveApiKey');
-    const cancelApiKeyBtn = document.getElementById('cancelApiKey');
-    const apiKeyInput = document.getElementById('apiKeyInput');
-    const modal = document.getElementById('apiKeyModal');
-    
-    if (saveApiKeyBtn) {
-      saveApiKeyBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        console.log('Save button clicked'); // Debug log
-        const apiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
-        console.log('API Key entered:', apiKey ? 'Yes' : 'No'); // Debug log
-        
-        if (!apiKey) {
-          alert('Lütfen API anahtarınızı girin.');
-          if (apiKeyInput) apiKeyInput.focus();
-          return;
-        }
-        
-        if (apiKey.length < 30) {
-          alert('API anahtarı çok kısa görünüyor. Lütfen doğru API anahtarını girin.');
-          if (apiKeyInput) apiKeyInput.focus();
-          return;
-        }
-        
-        // Save API key
-        try {
-          localStorage.setItem('gemini_api_key', apiKey);
-          this.API_KEY = apiKey;
-          this.API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.API_KEY}`;
-          
-          // Hide modal
-          if (modal) {
-            modal.style.display = 'none';
-            modal.classList.remove('show');
-          }
-          
-          // Clear input
-          if (apiKeyInput) apiKeyInput.value = '';
-          
-          // Hide notice
-          this.hideApiNotice();
-          
-          alert('API anahtarı başarıyla kaydedildi! Artık chatbot\'u kullanabilirsiniz.');
-          
-          // Initialize app
-          this.init();
-          
-        } catch (error) {
-          console.error('Error saving API key:', error);
-          alert('API anahtarı kaydedilemedi. Lütfen tekrar deneyin.');
-        }
-      });
-    }
-    
-    if (cancelApiKeyBtn) {
-      cancelApiKeyBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        console.log('Cancel button clicked'); // Debug log
-        
-        if (modal) {
-          modal.style.display = 'none';
-          modal.classList.remove('show');
-        }
-        if (apiKeyInput) {
-          apiKeyInput.value = '';
-        }
-      });
-    }
-
-    // Modal outside click to close
-    if (modal) {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-          modal.style.display = 'none';
-          modal.classList.remove('show');
-          if (apiKeyInput) apiKeyInput.value = '';
-        }
-      });
-    }
-
-    // Enter key in API input
-    if (apiKeyInput) {
-      apiKeyInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          if (saveApiKeyBtn) saveApiKeyBtn.click();
-        }
-      });
-    }
-
-    // Escape key to close modal
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal && modal.style.display !== 'none') {
-        modal.style.display = 'none';
-        modal.classList.remove('show');
-        if (apiKeyInput) apiKeyInput.value = '';
-      }
-    });
 
     // Test sentence buttons - will be bound after DOM content loaded
     this.bindTestButtons();
@@ -307,8 +166,8 @@ class GeminiChatbot {
   bindTestButtons() {
     // Wait for test buttons to be created, then bind events
     setTimeout(() => {
-      document.querySelectorAll('.test-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+      document.querySelectorAll(".test-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
           const sentence = e.target.dataset.sentence;
           this.useTestSentence(sentence);
         });
@@ -317,23 +176,29 @@ class GeminiChatbot {
   }
 
   // Logging utility
-  log(message, type = 'info') {
+  log(message, type = "info") {
     try {
-      const shouldLog = this.config && this.config.get ? this.config.get('CONSOLE_LOGGING', true) : true;
-      
+      const shouldLog =
+        this.config && this.config.get
+          ? this.config.get("CONSOLE_LOGGING", true)
+          : true;
+
       if (shouldLog) {
         const timestamp = new Date().toISOString();
         const logMessage = `[${timestamp}] [${type.toUpperCase()}] ${message}`;
-        
+
         switch (type) {
-          case 'error':
+          case "error":
             console.error(logMessage);
             break;
-          case 'warn':
+          case "warn":
             console.warn(logMessage);
             break;
-          case 'debug':
-            const debugMode = this.config && this.config.get ? this.config.get('DEBUG_MODE', false) : false;
+          case "debug":
+            const debugMode =
+              this.config && this.config.get
+                ? this.config.get("DEBUG_MODE", false)
+                : false;
             if (debugMode) {
               console.log(logMessage);
             }
@@ -349,21 +214,22 @@ class GeminiChatbot {
 
   // Speech Recognition
   initializeSpeechRecognition() {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
       this.recognition = new SpeechRecognition();
-      this.recognition.lang = 'tr-TR';
+      this.recognition.lang = "tr-TR";
       this.recognition.continuous = false;
       this.recognition.interimResults = false;
 
       this.recognition.onresult = (event) => {
         const text = event.results[0][0].transcript;
-        document.getElementById('userInput').value = text;
+        document.getElementById("userInput").value = text;
         this.stopRecording();
       };
 
       this.recognition.onerror = (event) => {
-        console.error('Ses tanıma hatası:', event.error);
+        console.error("Ses tanıma hatası:", event.error);
         this.stopRecording();
       };
 
@@ -375,7 +241,7 @@ class GeminiChatbot {
 
   toggleVoice() {
     if (!this.recognition) {
-      alert('Tarayıcınız ses tanımayı desteklemiyor.');
+      alert("Tarayıcınız ses tanımayı desteklemiyor.");
       return;
     }
 
@@ -389,7 +255,11 @@ class GeminiChatbot {
   startRecording() {
     this.recognition.start();
     this.isRecording = true;
-    document.getElementById('voiceBtn').style.background = '#ef4444';
+    const voiceBtn = document.getElementById("voiceBtn");
+    if (voiceBtn) {
+      voiceBtn.textContent = "🔴";
+      voiceBtn.classList.add("recording");
+    }
   }
 
   stopRecording() {
@@ -397,55 +267,103 @@ class GeminiChatbot {
       this.recognition.stop();
     }
     this.isRecording = false;
-    document.getElementById('voiceBtn').style.background = '';
+    const voiceBtn = document.getElementById("voiceBtn");
+    if (voiceBtn) {
+      voiceBtn.textContent = "🎤";
+      voiceBtn.classList.remove("recording");
+    }
   }
 
   toggleTheme() {
-    document.body.classList.toggle('dark');
-    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    document.body.classList.toggle("dark");
+    const isDark = document.body.classList.contains("dark");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+
+    // Update theme button icon
+    const themeBtn = document.getElementById("toggleTheme");
+    if (themeBtn) {
+      themeBtn.textContent = isDark ? "☀️" : "🌗";
+    }
   }
 
   toggleDeepAnalysis() {
     this.isDeepAnalysis = !this.isDeepAnalysis;
-    document.getElementById('analysisMode').textContent = this.isDeepAnalysis ? 'Açık' : 'Kapalı';
-    document.getElementById('deepAnalysisToggle').classList.toggle('active', this.isDeepAnalysis);
+    const analysisMode = document.getElementById("analysisMode");
+    const deepAnalysisBtn = document.getElementById("deepAnalysisToggle");
+
+    if (analysisMode) {
+      analysisMode.textContent = this.isDeepAnalysis ? "Açık" : "Kapalı";
+    }
+
+    if (deepAnalysisBtn) {
+      deepAnalysisBtn.classList.toggle("active", this.isDeepAnalysis);
+    }
+
+    localStorage.setItem("deepAnalysis", this.isDeepAnalysis);
+  }
+
+  clearHistory() {
+    if (confirm("Sohbet geçmişini silmek istediğinizden emin misiniz?")) {
+      this.chatHistory = [];
+      const messagesContainer = document.getElementById("messages");
+      if (messagesContainer) {
+        messagesContainer.innerHTML = "";
+      }
+      localStorage.removeItem("chatHistory");
+      this.log("Chat history cleared", "info");
+    }
+  }
+
+  toggleLogoZoom() {
+    const logoContainer = document.querySelector(".logo-container");
+    if (logoContainer) {
+      logoContainer.classList.toggle("zoomed");
+
+      // Auto remove zoom after 2 seconds
+      if (logoContainer.classList.contains("zoomed")) {
+        setTimeout(() => {
+          logoContainer.classList.remove("zoomed");
+        }, 2000);
+      }
+    }
   }
 
   useTestSentence(sentence) {
-    document.getElementById('userInput').value = sentence;
-    document.getElementById('userInput').focus();
+    document.getElementById("userInput").value = sentence;
+    document.getElementById("userInput").focus();
   }
 
   async sendMessage() {
-    if (!this.API_KEY) {
-      this.showApiKeyModal();
+    if (!this.API_KEY || this.API_KEY === "YOUR_API_KEY_HERE") {
+      this.showApiNotice();
+      alert("Lütfen config.js dosyasında API anahtarınızı ayarlayın.");
       return;
     }
 
-    const userInput = document.getElementById('userInput');
+    const userInput = document.getElementById("userInput");
     const message = userInput.value.trim();
-    
+
     if (!message) return;
 
     // Clear input and add user message
-    userInput.value = '';
-    this.appendMessage(message, 'user');
-    
+    userInput.value = "";
+    this.appendMessage(message, "user");
+
     // Show loading
-    this.appendMessage('💭 Düşünüyor...', 'bot', true);
+    this.appendMessage("💭 Düşünüyor...", "bot", true);
     this.setLogoThinking(true);
-    
+
     try {
       const prompt = this.buildPrompt(message);
-      
+
       const response = await fetch(this.API_URL, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
       });
 
       if (!response.ok) {
@@ -453,136 +371,150 @@ class GeminiChatbot {
       }
 
       const data = await response.json();
-      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Cevap alınamadı.';
-      
+      const reply =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text || "Cevap alınamadı.";
+
       this.removeLastBotMessage();
-      this.appendMessage(reply, 'bot');
+      this.appendMessage(reply, "bot");
       this.saveToLocalStorage();
-      
     } catch (error) {
-      this.log(`API Hatası: ${error.message}`, 'error');
+      this.log(`API Hatası: ${error.message}`, "error");
       this.removeLastBotMessage();
-      
-      let errorMessage = '❌ Bağlantı hatası. ';
-      if (error.message.includes('404')) {
-        errorMessage += 'API endpoint bulunamadı.';
-      } else if (error.message.includes('401') || error.message.includes('403')) {
-        errorMessage += 'API anahtarı geçersiz. Lütfen yeni bir API anahtarı ekleyin.';
-        // Clear invalid API key
-        localStorage.removeItem('gemini_api_key');
-        this.API_KEY = null;
-      } else if (error.message.includes('429')) {
-        errorMessage += 'Çok fazla istek gönderildi. Lütfen biraz bekleyin.';
+
+      let errorMessage = "❌ Bağlantı hatası. ";
+      if (error.message.includes("404")) {
+        errorMessage += "API endpoint bulunamadı.";
+      } else if (
+        error.message.includes("401") ||
+        error.message.includes("403")
+      ) {
+        errorMessage +=
+          "API anahtarı geçersiz. Lütfen config.js dosyasında yeni bir API anahtarı ayarlayın.";
+      } else if (error.message.includes("429")) {
+        errorMessage += "Çok fazla istek gönderildi. Lütfen biraz bekleyin.";
       } else {
-        errorMessage += 'Lütfen API anahtarınızı kontrol edin.';
+        errorMessage += "Lütfen API anahtarınızı kontrol edin.";
       }
-      
-      this.appendMessage(errorMessage, 'bot');
+
+      this.appendMessage(errorMessage, "bot");
     } finally {
       this.setLogoThinking(false);
     }
   }
 
-  buildPrompt(userMessage) {
-    const basePrompt = `Sen bir duygu analiz uzmanısın. Verilen metni analiz et ve şu formatta yanıtla:
+  buildPrompt(message) {
+    const basePrompt = `Sen bir duygu analizi uzmanısın. Verilen metindeki duyguları analiz et ve aşağıdaki formatta cevap ver:
 
-DUYGU: [Ana duygu]
-EMOJİ: [Uygun emoji] 
-GÜVEN: [%0-100 arası]
-ANALİZ: [Kısa açıklama]
+🎯 **Duygu Analizi**
+- **Ana Duygu**: [pozitif/negatif/nötr]
+- **Duygu Yoğunluğu**: [zayıf/orta/güçlü]
+- **Tespit Edilen Duygular**: [mutluluk, üzüntü, öfke, korku, şaşkınlık, iğrenme vb.]
 
-${this.isDeepAnalysis ? `
-DERIN ANALİZ:
-- Empati Seviyesi: [Düşük/Orta/Yüksek]
-- Psikolojik İpuçları: [Kısa analiz]
-- Öneriler: [Varsa öneriler]
-- Edebi Referans: [Varsa benzer eser/şarkı]` : ''}
+📊 **Detaylı Analiz**
+- **Ton**: [Metnin genel tonu]
+- **Bağlam**: [Metnin yazıldığı muhtemel durum]
+- **Anahtar Kelimeler**: [Duyguyu belirten önemli kelimeler]
 
-Analiz edilecek metin: "${userMessage}"`;
+${
+  this.isDeepAnalysis
+    ? `
+🧠 **Derin Analiz**
+- **Psikolojik Durum**: [Yazarın muhtemel psikolojik durumu]
+- **Motivasyon**: [Metni yazma amacı]
+- **Öneriler**: [Duygu durumuna göre öneriler]
+`
+    : ""
+}
+
+💬 **Özet**: [Analiz özeti ve genel değerlendirme]
+
+Analiz edilecek metin: "${message}"`;
 
     return basePrompt;
   }
 
-  appendMessage(text, sender, isTemporary = false) {
-    const messagesContainer = document.getElementById('messages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}${isTemporary ? ' temporary' : ''}`;
-    messageDiv.innerHTML = this.formatMessage(text);
-    
+  appendMessage(message, sender, isTemporary = false) {
+    const messagesContainer = document.getElementById("messages");
+    const messageDiv = document.createElement("div");
+    messageDiv.classList.add("message", sender);
+
+    if (isTemporary) {
+      messageDiv.classList.add("temporary");
+    }
+
+    // Format message with markdown-like styling
+    const formattedMessage = this.formatMessage(message);
+    messageDiv.innerHTML = formattedMessage;
+
     messagesContainer.appendChild(messageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    // Add to chat history if not temporary
+    if (!isTemporary) {
+      this.chatHistory.push({ message, sender, timestamp: Date.now() });
+    }
   }
 
-  formatMessage(text) {
-    return text
-      .replace(/\n/g, '<br>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>');
+  formatMessage(message) {
+    return message
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.*?)\*/g, "<em>$1</em>")
+      .replace(/\n/g, "<br>");
   }
 
   removeLastBotMessage() {
-    const messages = document.querySelectorAll('.message.bot.temporary');
-    if (messages.length > 0) {
-      messages[messages.length - 1].remove();
+    const messagesContainer = document.getElementById("messages");
+    const lastMessage = messagesContainer.lastElementChild;
+    if (lastMessage && lastMessage.classList.contains("temporary")) {
+      messagesContainer.removeChild(lastMessage);
     }
   }
 
   saveToLocalStorage() {
-    const messages = document.getElementById('messages').innerHTML;
-    localStorage.setItem('chatHistory', messages);
+    localStorage.setItem("chatHistory", JSON.stringify(this.chatHistory));
   }
 
   loadHistory() {
-    const savedHistory = localStorage.getItem('chatHistory');
+    const savedHistory = localStorage.getItem("chatHistory");
     if (savedHistory) {
-      document.getElementById('messages').innerHTML = savedHistory;
-      const messagesContainer = document.getElementById('messages');
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      try {
+        this.chatHistory = JSON.parse(savedHistory);
+        this.chatHistory.forEach((item) => {
+          this.appendMessage(item.message, item.sender);
+        });
+      } catch (error) {
+        console.error("Error loading chat history:", error);
+      }
     }
-    
-    // Load theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      document.body.classList.add('dark');
-    }
-  }
 
-  clearHistory() {
-    if (confirm('Sohbet geçmişini silmek istediğinizden emin misiniz?')) {
-      document.getElementById('messages').innerHTML = '';
-      localStorage.removeItem('chatHistory');
+    // Load saved settings
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.body.classList.add("dark");
+    }
+
+    const savedDeepAnalysis = localStorage.getItem("deepAnalysis");
+    if (savedDeepAnalysis === "true") {
+      this.isDeepAnalysis = true;
+      const analysisMode = document.getElementById("analysisMode");
+      const deepAnalysisBtn = document.getElementById("deepAnalysisToggle");
+
+      if (analysisMode) analysisMode.textContent = "Açık";
+      if (deepAnalysisBtn) deepAnalysisBtn.classList.add("active");
     }
   }
 
   setLogoThinking(isThinking) {
-    const logoContainer = document.querySelector('.logo-container');
+    const logoContainer = document.querySelector(".logo-container");
     if (logoContainer) {
-      if (isThinking) {
-        logoContainer.classList.add('thinking');
-      } else {
-        logoContainer.classList.remove('thinking');
-      }
-    }
-  }
-
-  toggleLogoZoom() {
-    const logoContainer = document.querySelector('.logo-container');
-    if (logoContainer) {
-      logoContainer.classList.toggle('zoomed');
-      
-      // Auto remove zoom after 2 seconds
-      if (logoContainer.classList.contains('zoomed')) {
-        setTimeout(() => {
-          logoContainer.classList.remove('zoomed');
-        }, 2000);
-      }
+      logoContainer.classList.toggle("thinking", isThinking);
     }
   }
 }
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-  new GeminiChatbot();
+document.addEventListener("DOMContentLoaded", () => {
+  window.chatbot = new GeminiChatbot();
 });
 
 // Export for potential module usage
